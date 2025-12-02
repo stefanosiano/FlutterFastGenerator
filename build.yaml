@@ -1,0 +1,15 @@
+targets:
+  $default:
+    builders:
+      flutter_fast|flutter_fast_generators:
+        enabled: true
+
+builders:
+  flutter_fast_generators:
+    target: ":flutter_fast_generators" # Generator name
+    import: "package:flutter_fast_generators/builder.dart"
+    builder_factories: ["generateBlocs", "generatePrefs", "generateDaos", "generateQueryables"]
+    build_extensions: { ".dart": [".flutter_fast_generators.g.part"] }
+    auto_apply: dependents
+    build_to: cache
+    applies_builders: ["source_gen|combining_builder"]
