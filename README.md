@@ -48,9 +48,9 @@ class MyBloc extends FastBloc<MyEvent, MyState> {
 
 
 ### Preferences generator: (PrefGenerator)
-Annotation: @Pref
+Annotation: `@Pref`
 
-Generates a PreferencesRepository that instantiates annotated preference manager classes, load/save APIs, typed get/save methods, and stream/subscribe helpers for each declared FastPreference.
+Generates a `PreferencesRepository` that instantiates annotated preference manager classes, load/save APIs, typed get/save methods, and stream/subscribe helpers for each declared FastPreference.
 Handles deferred loading and registration of preferences.
 
 
@@ -70,7 +70,8 @@ class AppPreferences extends FastPreferenceManager {
 
 
 ### DAO generator: (DaoGenerator)
-Annotation: @Dao, @Query
+Annotation: `@Dao`, `@Query`
+
 Generates: concrete DAO implementation classes, insert helpers, and query implementations that handle raw queries, updates, and streams. Validates method signatures and return types.
 
 
@@ -104,7 +105,8 @@ abstract class UserDao implements FastDao {
 ```
 
 ### Queryable generator: (QueryableGenerator)
-Annotation: @Queryable and @QueryableField
+Annotation: `@Queryable` and `@QueryableField`
+
 Generates: parsing extension methods to convert DB maps to model instances and vice versa.
 
 ```dart
