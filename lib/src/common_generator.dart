@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:analyzer/dart/constant/value.dart';
 import 'package:analyzer/dart/element/element.dart';
-import 'package:analyzer/dart/element/visitor.dart';
+import 'package:analyzer/dart/element/visitor2.dart';
 import 'package:build/build.dart';
 import 'package:source_gen/source_gen.dart';
 
@@ -50,7 +50,7 @@ abstract class CommonGenerator<T> extends GeneratorForAnnotation<T> {
       text[0] == '_' ? '_${text[1].toUpperCase()}${text.substring(2)}' : '${text[0].toUpperCase()}${text.substring(1)}';
 }
 
-class CommonModelVisitor extends SimpleElementVisitor {
+class CommonModelVisitor extends SimpleElementVisitor2 {
   final ClassElement element;
   Map<String, FieldElement> fields = {};
   Map<String, MethodElement> methods = {};
@@ -61,11 +61,11 @@ class CommonModelVisitor extends SimpleElementVisitor {
 
   @override
   visitFieldElement(FieldElement element) {
-    fields[element.name] = element;
+    fields[element.displayName] = element;
   }
 
   @override
   visitMethodElement(MethodElement element) {
-    methods[element.name] = element;
+    methods[element.displayName] = element;
   }
 }

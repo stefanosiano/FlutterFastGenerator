@@ -17,21 +17,21 @@ class DaoGenerator extends CommonGenerator<Dao> {
 
     final GenDao dao = _rebuildDao(rawDao);
 
-    TypeChecker queryChecker = TypeChecker.fromRuntime(Query);
+    TypeChecker queryChecker = TypeChecker.typeNamed(Query);
     Iterable<GenQuery> queries = visitor.methods.values.where((f) => queryChecker.hasAnnotationOf(f)).map((method) {
       final DartObject rawQuery = queryChecker.firstAnnotationOf(method)!;
       return _rebuildQuery(rawQuery, method);
     });
 
     final buffer = StringBuffer();
-    buffer.writeln(_createDaoImpl(dao, visitor.element.name, queries));
-    buffer.writeln(_createDbHelperExtension(visitor.element.name));
+    buffer.writeln(_createDaoImpl(dao, visitor.element.displayName, queries));
+    buffer.writeln(_createDbHelperExtension(visitor.element.displayName));
 
     return buffer.toString();
   }
 
   void checkForErrors(ClassElement element) {
-    final className = element.name;
+    final className = element.displayName;
     final supertypeNames = element.allSupertypes.map((e) => e.getDisplayString());
     if (!supertypeNames.contains('FastDao')) {
       throw Exception('$className class must implement FastDao');
@@ -221,7 +221,7 @@ class GenQuery extends Query {
     return paramRegex.allMatches(value).map((r) => r.group(0)?.replaceAll(':', '')).nonNulls;
   }
 
-  Iterable<String> functionParams() => method.parameters.map((p) => p.name);
+  Iterable<String> functionParams() => method.typeParameters.map((p) => p.displayName);
 
   String innerType() {
     final String retType = method.returnType.toString();

@@ -6,7 +6,7 @@ import 'package:build/build.dart';
 import 'package:analyzer/dart/element/element.dart';
 
 class BlocEventStateGenerator extends CommonGenerator<BlocEventState> {
-  final _blocEventChecker = const TypeChecker.fromRuntime(BlocEventState);
+  final _blocEventChecker = const TypeChecker.typeNamed(BlocEventState);
 
   @override
   String generateForAnnotatedElement(Element element, ConstantReader annotation, BuildStep buildStep) {

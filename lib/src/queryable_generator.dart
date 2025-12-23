@@ -16,7 +16,7 @@ class QueryableGenerator extends CommonGenerator<Queryable> {
     var visitor = CommonModelVisitor(element as ClassElement);
     final Queryable queryable = _rebuildQueryable(rawQueryable);
 
-    TypeChecker fieldChecker = TypeChecker.fromRuntime(QueryableField);
+    TypeChecker fieldChecker = TypeChecker.typeNamed(QueryableField);
     Iterable<GenQueryableField> fields = visitor.fields.values.map((field) {
       if (fieldChecker.hasAnnotationOf(field)) {
         final DartObject rawField = fieldChecker.firstAnnotationOf(field)!;
@@ -29,8 +29,8 @@ class QueryableGenerator extends CommonGenerator<Queryable> {
     checkForErrors(element, fields);
 
     final buffer = StringBuffer();
-    buffer.writeln(_createParseExtension(fields, queryable, visitor.element.name));
-    buffer.writeln(_createCommentedQueries(fields, queryable, visitor.element.name));
+    buffer.writeln(_createParseExtension(fields, queryable, visitor.element.displayName));
+    buffer.writeln(_createCommentedQueries(fields, queryable, visitor.element.displayName));
 
     return buffer.toString();
   }
@@ -54,12 +54,12 @@ class QueryableGenerator extends CommonGenerator<Queryable> {
         }
 
         if (field.fromDbElem!.returnType.toString() != field.classType ||
-            field.fromDbElem!.parameters.first.type.toString() != field.columnType) {
+            field.fromDbElem!.typeParameters.first.toString() != field.columnType) {
           throw Exception(
               '$className.${field.fieldName} ${field.fromDbElem!.name} method must be a ${field.classType} Function(${field.columnType})');
         }
         if (field.toDbElem!.returnType.toString() != field.columnType ||
-            field.toDbElem!.parameters.first.type.toString() != field.classType) {
+            field.toDbElem!.typeParameters.first.toString() != field.classType) {
           throw Exception(
               '$className.${field.fieldName} ${field.toDbElem!.name} method must be a ${field.columnType} Function(${field.classType})');
         }
@@ -136,7 +136,7 @@ class QueryableGenerator extends CommonGenerator<Queryable> {
     final bool ignore = rawField.getField('ignore')!.toBoolValue()!;
 
     return GenQueryableField(
-      fieldName: field.name,
+      fieldName: field.displayName,
       fieldType: field.type,
       columnType: parseTypeParameters(rawField).first,
       classType: parseTypeParameters(rawField).last,
@@ -169,9 +169,9 @@ class GenQueryableField extends QueryableField {
 
   GenQueryableField.fromField(FieldElement field)
       : this(
-            fieldName: field.name,
+            fieldName: field.displayName,
             fieldType: field.type,
-            columnName: field.name,
+            columnName: field.displayName,
             ignore: false,
             columnType: 'dynamic',
             classType: field.type.getDisplayString());
@@ -202,16 +202,16 @@ class GenQueryableField extends QueryableField {
       };
 
   String fromDbMethod() {
-    String? methodClassName = fromDbElem?.enclosingElement3.name?.trim();
-    String? methodName = fromDbElem?.name.trim();
+    String? methodClassName = fromDbElem?.enclosingElement?.name?.trim();
+    String? methodName = fromDbElem?.displayName.trim();
     String toRet = methodClassName != null ? '$methodClassName.' : '';
     toRet += methodName ?? '';
     return toRet.isEmpty ? 'fromDb' : toRet;
   }
 
   String toDbMethod() {
-    String? methodClassName = toDbElem?.enclosingElement3.name?.trim();
-    String? methodName = toDbElem?.name.trim();
+    String? methodClassName = toDbElem?.enclosingElement?.name?.trim();
+    String? methodName = toDbElem?.displayName.trim();
     String toRet = methodClassName != null ? '$methodClassName.' : '';
     toRet += methodName ?? '';
     return toRet.isEmpty ? 'toDb<${fieldType.getDisplayString()}>' : toRet;

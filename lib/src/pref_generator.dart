@@ -6,7 +6,7 @@ import 'package:build/build.dart';
 import 'package:analyzer/dart/element/element.dart';
 
 class PrefGenerator extends CommonGenerator<Pref> {
-  final _prefChecker = const TypeChecker.fromRuntime(Pref);
+  final _prefChecker = const TypeChecker.typeNamed(Pref);
   late final StringBuffer _preferencesRepository =
       StringBuffer('class PreferencesRepository extends FastPreferencesRepository {\n');
   final _preferences = <String, Pref>{};
@@ -39,7 +39,7 @@ class PrefGenerator extends CommonGenerator<Pref> {
     var visitor = CommonModelVisitor(element as ClassElement);
     final String fileName = prefAnnotation.getField('fileName')!.toStringValue()!;
     final bool logEverything = prefAnnotation.getField('logEverything')!.toBoolValue()!;
-    _preferences[visitor.element.name] = Pref(fileName: fileName, logEverything: logEverything);
+    _preferences[visitor.element.displayName] = Pref(fileName: fileName, logEverything: logEverything);
 
     final buffer = StringBuffer();
     _preferencesRepository.writeln(_instantiatePreferences(visitor.element));
@@ -58,7 +58,7 @@ class PrefGenerator extends CommonGenerator<Pref> {
   /// ```
   String _instantiatePreferences(ClassElement element) {
     final buffer = StringBuffer();
-    final className = element.name;
+    final className = element.displayName;
     final supertypeNames = element.allSupertypes.map((e) => e.getDisplayString());
     if (!supertypeNames.contains('FastPreferenceManager')) {
       throw Exception('$className class must extend FastPreferenceManager');
@@ -89,12 +89,12 @@ class PrefGenerator extends CommonGenerator<Pref> {
   String _createSaveGetSubscribeMethods(CommonModelVisitor visitor, String prefFileName) {
     final buffer = StringBuffer();
     final prefs = _getDeclaredPreferences(visitor);
-    final className = visitor.element.name;
+    final className = visitor.element.displayName;
     final instanceName = '_${toCamelCase(className)}';
 
     for (var pref in prefs) {
       final name = pref.name;
-      final upperName = toPascalCase(pref.name);
+      final upperName = toPascalCase(pref.displayName);
       final streamKey = '${prefFileName.replaceAll('.', '_')}_${upperName}StreamKey';
       final type = pref.type.getDisplayString().split('<').last.split('>').first;
       buffer.writeln('// ignore: non_constant_identifier_names');
@@ -137,7 +137,7 @@ class PrefGenerator extends CommonGenerator<Pref> {
   String _createLoadMethod(CommonModelVisitor visitor, String prefFileName) {
     final buffer = StringBuffer();
     final prefs = _getDeclaredPreferences(visitor);
-    final className = visitor.element.name;
+    final className = visitor.element.displayName;
     final instanceName = '_${toCamelCase(className)}';
     final List<String> prefAccessors = prefs.map((e) => '$instanceName.${e.name}').toList();
 
